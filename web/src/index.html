@@ -1,0 +1,38 @@
+<!doctype html>
+<!--
+  Atribut data-* di bawah adalah cara Velzon mengatur layout dan tema. Nilainya
+  diubah saat runtime oleh ThemeService, bukan oleh script Velzon: app.js
+  bawaannya memanipulasi DOM secara langsung dan akan bertabrakan dengan Angular.
+-->
+<html
+  lang="id"
+  data-layout="vertical"
+  data-sidebar="dark"
+  data-sidebar-size="lg"
+  data-sidebar-visibility="show"
+  data-topbar="light"
+  data-bs-theme="light"
+  data-preloader="disable"
+>
+<head>
+  <meta charset="utf-8">
+  <title>GeoSquad</title>
+  <base href="/">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" type="image/x-icon" href="assets/images/favicon.ico">
+
+  <!--
+    Dimuat lewat <link> dari public/, bukan lewat array "styles" di
+    angular.json. Alasannya icons.min.css merujuk fontnya secara relatif
+    (../fonts/...); kalau Angular membundelnya jadi satu file di root, jalur itu
+    akan menunjuk ke tempat yang salah dan semua ikon hilang.
+  -->
+  <link rel="stylesheet" href="assets/css/bootstrap.min.css">
+  <link rel="stylesheet" href="assets/css/icons.min.css">
+  <link rel="stylesheet" href="assets/css/app.min.css">
+  <link rel="stylesheet" href="assets/css/custom.min.css">
+</head>
+<body>
+  <app-root></app-root>
+</body>
+</html>

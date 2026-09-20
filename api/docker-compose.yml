@@ -1,0 +1,47 @@
+# MySQL dan Redis untuk pengembangan lokal.
+#
+# Hanya dependensi yang dijalankan di sini, bukan API-nya. API tetap dijalankan
+# lewat `go run` supaya siklus ubah-kode-lihat-hasil tidak lewat build image.
+services:
+  mysql:
+    image: mysql:8.4
+    container_name: geosquad-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: ${DB_NAME:-geosquad}
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD:-geosquad}
+      TZ: UTC
+    ports:
+      - "${DB_PORT:-3306}:3306"
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+    volumes:
+      - mysql-data:/var/lib/mysql
+    healthcheck:
+      # Tanpa healthcheck, API bisa start lebih dulu dan gagal connect, karena
+      # MySQL butuh belasan detik menyiapkan datadir saat pertama kali jalan.
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-p${DB_PASSWORD:-geosquad}"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 30s
+
+  redis:
+    image: redis:7-alpine
+    container_name: geosquad-redis
+    restart: unless-stopped
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+volumes:
+  mysql-data:
+  redis-data:

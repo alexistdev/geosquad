@@ -1,0 +1,126 @@
+@if (loading()) {
+  <div class="card"><div class="card-body text-center py-5 text-muted">
+    <span class="spinner-border spinner-border-sm me-1" role="status"></span> Memuat run...
+  </div></div>
+} @else if (!run()) {
+  <div class="card"><div class="card-body text-center py-5">
+    <i class="ri-error-warning-line display-5 text-muted"></i>
+    <p class="mt-2 mb-3">Run tidak ditemukan.</p>
+    <a class="btn btn-soft-primary" routerLink="/user/dashboard">Kembali</a>
+  </div></div>
+} @else {
+
+  <div class="row">
+    <div class="col-12">
+      <div class="page-title-box d-sm-flex align-items-start justify-content-between">
+        <div class="min-w-0">
+          <a class="text-muted small d-inline-block mb-1" routerLink="/user/dashboard">
+            <i class="ri-arrow-left-line align-bottom"></i> Kembali
+          </a>
+          <div class="d-flex align-items-center gap-2 flex-wrap">
+            <span class="badge bg-primary-subtle text-primary font-monospace">{{ run()!.ticket }}</span>
+            <app-status-badge [status]="run()!.status" />
+          </div>
+          <h4 class="mt-2 mb-0 title-verbatim">{{ run()!.request }}</h4>
+        </div>
+        <div class="page-title-right mt-2 mt-sm-0">
+          @if (!isTerminal(run()!.status)) {
+            <button type="button" class="btn btn-soft-danger" (click)="cancel()" [disabled]="cancelling()">
+              <i class="ri-stop-circle-line align-bottom me-1"></i>
+              {{ cancelling() ? 'Menghentikan...' : 'Hentikan' }}
+            </button>
+          } @else {
+            <button type="button" class="btn btn-soft-danger" (click)="remove()">
+              <i class="ri-delete-bin-line align-bottom me-1"></i> Hapus
+            </button>
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+
+  @if (error()) {
+    <div class="alert alert-danger" role="alert">{{ error() }}</div>
+  }
+
+  <div class="row">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-body">
+          <div class="row g-3">
+            <div class="col-6 col-md-3">
+              <p class="text-muted text-uppercase fw-medium fs-12 mb-1">Branch</p>
+              <p class="mb-0 font-monospace small">{{ run()!.branch || '—' }}</p>
+            </div>
+            <div class="col-6 col-md-3">
+              <p class="text-muted text-uppercase fw-medium fs-12 mb-1">Dimulai</p>
+              <p class="mb-0">{{ run()!.startedAt ? (run()!.startedAt | date: 'dd MMM, HH:mm:ss') : '—' }}</p>
+            </div>
+            <div class="col-6 col-md-3">
+              <p class="text-muted text-uppercase fw-medium fs-12 mb-1">Selesai</p>
+              <p class="mb-0">{{ run()!.finishedAt ? (run()!.finishedAt | date: 'dd MMM, HH:mm:ss') : '—' }}</p>
+            </div>
+            <div class="col-6 col-md-3">
+              <p class="text-muted text-uppercase fw-medium fs-12 mb-1">Exit code</p>
+              <p class="mb-0 font-monospace">{{ run()!.exitCode ?? '—' }}</p>
+            </div>
+          </div>
+
+          @if (run()!.errorMessage) {
+            <div class="alert alert-danger mt-3 mb-0">{{ run()!.errorMessage }}</div>
+          }
+
+          <hr class="my-3">
+          <p class="text-muted mb-1 fw-medium">Hasil kerja tiket ini</p>
+          <ul class="text-muted small mb-0 ps-3">
+            <li>Kode: <code>engine/workspace/{{ run()!.ticket }}/</code></li>
+            <li>Laporan tiap tahap: <code>engine/output/{{ run()!.ticket }}/</code></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-header d-flex flex-wrap align-items-center justify-content-between gap-2">
+          <h5 class="card-title mb-0 d-flex align-items-center gap-2">
+            Log <span class="text-muted fw-normal">({{ logs().length }} baris)</span>
+            @if (streaming()) {
+              <span class="badge bg-success-subtle text-success d-inline-flex align-items-center gap-1">
+                <span class="live-dot"></span> LIVE
+              </span>
+            }
+          </h5>
+          @if (!followTail()) {
+            <button type="button" class="btn btn-sm btn-soft-secondary" (click)="followTail.set(true)">
+              <i class="ri-arrow-down-line align-bottom me-1"></i> Ikuti baris terbaru
+            </button>
+          }
+        </div>
+
+        <div class="card-body">
+          @if (logs().length === 0) {
+            <div class="text-center py-5 text-muted">
+              {{ streaming() ? 'Menunggu keluaran pertama dari engine...' : 'Tidak ada log.' }}
+            </div>
+          } @else {
+            <div #logBox class="log-box" (scroll)="onScroll($event)" tabindex="0" role="log" aria-live="polite">
+              @for (entry of logs(); track entry.seq) {
+                <div
+                  class="log-line"
+                  [class.stderr]="entry.stream === 'STDERR'"
+                  [class.system]="entry.stream === 'SYSTEM'"
+                >
+                  <span class="seq">{{ entry.seq }}</span>
+                  <span class="line">{{ entry.line }}</span>
+                </div>
+              }
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+}

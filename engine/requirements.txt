@@ -1,0 +1,5 @@
+# Dependency engine (runner CrewAI). Bukan dependency aplikasi yang dibangun
+# squad -- itu ada di workspace/requirements.txt dan dipasang ke venv terpisah.
+crewai==1.15.20
+crewai-tools==1.15.20
+python-dotenv==1.2.3

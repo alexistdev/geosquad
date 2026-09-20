@@ -1,0 +1,122 @@
+/*
+ * Tampilan berasal dari Velzon (Bootstrap 5), dimuat lewat <link> di
+ * index.html. File ini hanya memuat yang benar-benar khas GeoSquad.
+ *
+ * Kelas yang sudah disediakan Velzon -- .btn, .card, .badge, .table, dan
+ * seterusnya -- sengaja TIDAK didefinisikan ulang di sini. Menimpanya berarti
+ * memelihara dua sistem desain yang akan saling menyalip.
+ */
+
+/* Logo teks, menggantikan file gambar logo Velzon. */
+.brand-mark {
+  display: inline-grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: var(--vz-primary);
+  color: #fff;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.brand-word {
+  font-size: 1.15rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--vz-primary);
+}
+
+/* Sidebar bertema gelap, jadi nama produk di dalamnya harus terang. */
+.app-menu .brand-word {
+  color: #fff;
+}
+
+/*
+ * Kotak log run. Tinggi dibatasi supaya halaman tidak memanjang tak berujung
+ * saat engine mengeluarkan ribuan baris.
+ */
+.log-box {
+  max-height: 60vh;
+  overflow-y: auto;
+  background: var(--vz-light);
+  border: 1px solid var(--vz-border-color);
+  border-radius: var(--vz-border-radius);
+  padding: 10px 0;
+  font-family: var(--vz-font-monospace);
+  font-size: 0.78rem;
+  line-height: 1.55;
+}
+
+.log-line {
+  display: flex;
+  gap: 10px;
+  padding: 0 12px;
+}
+.log-line:hover {
+  background: var(--vz-secondary-bg);
+}
+
+.log-line .seq {
+  flex: none;
+  width: 46px;
+  text-align: right;
+  opacity: 0.45;
+  user-select: none;
+}
+
+.log-line .line {
+  /* pre-wrap mempertahankan indentasi engine tanpa memaksa scroll mendatar. */
+  white-space: pre-wrap;
+  word-break: break-word;
+  min-width: 0;
+}
+
+.log-line.stderr .line {
+  color: var(--vz-danger);
+}
+.log-line.system .line {
+  color: var(--vz-warning);
+  font-style: italic;
+}
+
+/* Penanda aliran log yang masih hidup. */
+.live-dot {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--vz-success);
+  animation: live-pulse 1.6s ease-in-out infinite;
+}
+
+@keyframes live-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.25; }
+}
+
+/* Dihormati untuk yang memilih gerakan minimal di setelan sistemnya. */
+@media (prefers-reduced-motion: reduce) {
+  .live-dot { animation: none; }
+}
+
+/* Kolom request bisa sangat panjang; dipotong agar tabel tetap terbaca. */
+.truncate-cell {
+  max-width: 380px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/*
+ * Velzon meng-uppercase judul di .page-title-box. Itu pas untuk label
+ * halaman ("MANAJEMEN USER"), tapi tidak untuk request yang diketik user --
+ * kalimatnya jadi terbaca seperti berteriak, dan huruf besar semua lebih
+ * lambat dibaca untuk teks panjang.
+ */
+.page-title-box h4.title-verbatim {
+  text-transform: none;
+  font-size: 1.05rem;
+  line-height: 1.4;
+}

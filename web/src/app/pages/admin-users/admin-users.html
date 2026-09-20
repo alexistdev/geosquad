@@ -1,0 +1,165 @@
+<div class="row">
+  <div class="col-12">
+    <div class="page-title-box d-sm-flex align-items-center justify-content-between">
+      <h4 class="mb-sm-0">Manajemen User</h4>
+      <div class="page-title-right">
+        <button type="button" class="btn btn-primary" (click)="openForm()">
+          <i class="ri-user-add-line align-bottom me-1"></i> Tambah user
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+@if (error()) {
+  <div class="alert alert-danger" role="alert">{{ error() }}</div>
+}
+@if (notice()) {
+  <div class="alert alert-success" role="status">{{ notice() }}</div>
+}
+
+@if (showForm()) {
+  <div class="row">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-header d-flex align-items-center justify-content-between">
+          <h5 class="card-title mb-0">User baru</h5>
+          <button type="button" class="btn btn-sm btn-soft-secondary" (click)="showForm.set(false)">Batal</button>
+        </div>
+        <div class="card-body">
+          <form (ngSubmit)="create()" #form="ngForm" novalidate>
+            <div class="row g-3">
+              <div class="col-md-6 col-lg-3">
+                <label for="fullName" class="form-label">Nama lengkap</label>
+                <input type="text" id="fullName" name="fullName" class="form-control"
+                       [(ngModel)]="draft.fullName" required maxlength="150" [disabled]="saving()" />
+              </div>
+              <div class="col-md-6 col-lg-3">
+                <label for="email" class="form-label">Email</label>
+                <input type="email" id="email" name="email" class="form-control"
+                       [(ngModel)]="draft.email" required [disabled]="saving()" />
+              </div>
+              <div class="col-md-6 col-lg-3">
+                <label for="password" class="form-label">Password</label>
+                <input type="password" id="password" name="password" class="form-control"
+                       [(ngModel)]="draft.password" required minlength="8"
+                       autocomplete="new-password" [disabled]="saving()" />
+              </div>
+              <div class="col-md-6 col-lg-3">
+                <label for="role" class="form-label">Peran</label>
+                <select id="role" name="role" class="form-select" [(ngModel)]="draft.role" [disabled]="saving()">
+                  <option value="USER">USER</option>
+                  <option value="ADMIN">ADMIN</option>
+                </select>
+              </div>
+            </div>
+            <div class="mt-3">
+              <button type="submit" class="btn btn-primary" [disabled]="saving() || form.invalid">
+                @if (saving()) {
+                  <span class="spinner-border spinner-border-sm me-1" role="status"></span> Menyimpan...
+                } @else { Simpan }
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+}
+
+<div class="row">
+  <div class="col-12">
+    <div class="card">
+      <div class="card-header d-flex flex-wrap align-items-center justify-content-between gap-2">
+        <h5 class="card-title mb-0">Daftar user <span class="text-muted fw-normal">({{ total() }})</span></h5>
+        <div class="d-flex gap-2">
+          <div>
+            <label for="search" class="visually-hidden">Cari nama atau email</label>
+            <input type="text" id="search" name="search" class="form-control form-control-sm"
+                   [(ngModel)]="search" (keyup.enter)="load()" placeholder="Cari nama atau email" />
+          </div>
+          <div>
+            <label for="roleFilter" class="visually-hidden">Saring peran</label>
+            <select id="roleFilter" name="roleFilter" class="form-select form-select-sm"
+                    [(ngModel)]="roleFilter" (ngModelChange)="load()">
+              <option value="">Semua peran</option>
+              <option value="ADMIN">ADMIN</option>
+              <option value="USER">USER</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="card-body">
+        @if (loading()) {
+          <div class="text-center py-5 text-muted">
+            <span class="spinner-border spinner-border-sm me-1" role="status"></span> Memuat...
+          </div>
+        } @else if (items().length === 0) {
+          <div class="text-center py-5 text-muted">Tidak ada user yang cocok.</div>
+        } @else {
+          <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+              <thead class="table-light">
+                <tr>
+                  <th scope="col">Nama</th>
+                  <th scope="col">Email</th>
+                  <th scope="col">Peran</th>
+                  <th scope="col">Status</th>
+                  <th scope="col">Bergabung</th>
+                  <th scope="col" class="text-end">Aksi</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (user of items(); track user.id) {
+                  <tr [class.opacity-50]="user.isSuspended">
+                    <td>
+                      <div class="d-flex align-items-center gap-2">
+                        <span class="avatar-xs rounded-circle bg-primary-subtle text-primary d-flex align-items-center justify-content-center fw-semibold">
+                          {{ user.fullName.charAt(0).toUpperCase() }}
+                        </span>
+                        <span>
+                          {{ user.fullName }}
+                          @if (isSelf(user)) { <small class="text-muted">(kamu)</small> }
+                        </span>
+                      </div>
+                    </td>
+                    <td class="text-muted">{{ user.email }}</td>
+                    <td>
+                      <label [for]="'role-' + user.id" class="visually-hidden">Peran {{ user.fullName }}</label>
+                      <select
+                        [id]="'role-' + user.id"
+                        class="form-select form-select-sm"
+                        style="width: auto"
+                        [ngModel]="user.role"
+                        [ngModelOptions]="{ standalone: true }"
+                        (ngModelChange)="changeRole(user, $event)"
+                      >
+                        <option value="USER">USER</option>
+                        <option value="ADMIN">ADMIN</option>
+                      </select>
+                    </td>
+                    <td>
+                      <span class="badge" [class]="user.isSuspended
+                        ? 'badge bg-secondary-subtle text-secondary'
+                        : 'badge bg-success-subtle text-success'">
+                        {{ user.isSuspended ? 'Nonaktif' : 'Aktif' }}
+                      </span>
+                    </td>
+                    <td class="text-muted text-nowrap">{{ user.createdDate | date: 'dd MMM yyyy' }}</td>
+                    <td class="text-end text-nowrap">
+                      <button type="button" class="btn btn-sm btn-soft-secondary me-1" (click)="toggleSuspend(user)">
+                        {{ user.isSuspended ? 'Aktifkan' : 'Nonaktifkan' }}
+                      </button>
+                      <button type="button" class="btn btn-sm btn-soft-danger" (click)="remove(user)">Hapus</button>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+</div>

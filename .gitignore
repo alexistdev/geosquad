@@ -1,0 +1,47 @@
+# --- rahasia ---
+# Hanya .env.example yang boleh ikut ke repo. Sisanya tidak pernah.
+.env
+.env.*
+*.env.local
+.envrc
+!.env.example
+
+# Kunci dan sertifikat, seandainya suatu saat ada di folder ini.
+*.pem
+*.key
+*.p12
+*.pfx
+*.crt
+*.keystore
+id_rsa*
+
+# --- Python / engine ---
+__pycache__/
+*.py[cod]
+.venv/
+.venvs/
+# Hasil generate squad. Punya git sendiri, jangan diikutkan ke repo ini.
+engine/workspace/
+engine/output/
+
+# --- Go / api ---
+api/bin/
+api/tmp/
+*.db
+*.db-journal
+*.sqlite
+*.sqlite3
+
+# --- Angular / web ---
+node_modules/
+web/dist/
+web/.angular/
+
+# --- tooling lokal ---
+# Konfigurasi Claude Code. Milik mesin masing-masing, bukan milik project.
+.claude/
+
+# --- macOS / editor ---
+.DS_Store
+.idea/
+*.swp
